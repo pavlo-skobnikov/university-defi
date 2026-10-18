@@ -13,6 +13,8 @@ const deploy = async (name: string, ...args: unknown[]) => {
     console.log(`${name} розгорнуто: ${await contract.getAddress()}`);
     return contract as ethers.Contract;
 };
+const call = async (fn: ethers.BaseContractMethod, ...args: unknown[]) =>
+    fn(...args, { gasLimit: (await fn.estimateGas(...args)) * 13n / 10n });
 const send = async (label: string, tx: Promise<ethers.ContractTransactionResponse>) => {
     const receipt = await (await tx).wait();
     console.log(`${label}: ${receipt!.hash}`);
@@ -29,11 +31,11 @@ await send("Approve SKC", tokenA.approve(i, ethers.parseEther("1050")));
 await send("Approve MFT", tokenB.approve(i, ethers.parseEther("2000")));
 
 // b) новий пул SKC/MFT з ліквідністю 1000/2000
-await send("provideLiquidity", integrator.provideLiquidity(a, b, ethers.parseEther("1000"), ethers.parseEther("2000"), { gasLimit: 5_000_000 }));
+await send("provideLiquidity", call(integrator.provideLiquidity, a, b, ethers.parseEther("1000"), ethers.parseEther("2000")));
 
 // c) обмін 50 SKC -> MFT з допуском проковзування 1%
 const router = new ethers.Contract(UNISWAP_V2_ROUTER, ["function getAmountsOut(uint256, address[]) view returns (uint256[])"], provider);
 const [, expected] = await router.getAmountsOut(ethers.parseEther("50"), [a, b]);
 const before = await tokenB.balanceOf(await wallet.getAddress());
-await send("swapTokens", integrator.swapTokens(a, b, ethers.parseEther("50"), expected * 99n / 100n, { gasLimit: 600_000 }));
+await send("swapTokens", call(integrator.swapTokens, a, b, ethers.parseEther("50"), expected * 99n / 100n));
 console.log(`Отримано: ${ethers.formatEther(await tokenB.balanceOf(await wallet.getAddress()) - before)} MFT`);
