@@ -31,7 +31,7 @@ await send("Approve MFT", tokenB.approve(i, ethers.parseEther("2000")));
 // b) новий пул SKC/MFT з ліквідністю 1000/2000
 await send("provideLiquidity", integrator.provideLiquidity(a, b, ethers.parseEther("1000"), ethers.parseEther("2000"), { gasLimit: 5_000_000 }));
 
-// c) обмін 50 SKC -> MFT з допуском проковзування 1% (estimateGas у Sepolia занижує ліміт, тому задаємо явно)
+// c) обмін 50 SKC -> MFT з допуском проковзування 1%
 const router = new ethers.Contract(UNISWAP_V2_ROUTER, ["function getAmountsOut(uint256, address[]) view returns (uint256[])"], provider);
 const [, expected] = await router.getAmountsOut(ethers.parseEther("50"), [a, b]);
 const before = await tokenB.balanceOf(await wallet.getAddress());
