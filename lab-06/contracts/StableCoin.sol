@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract StableCoin is ERC20, Ownable {
+    // Власником цього контракту буде смарт-контракт кредитного ядра
+    constructor(address initialOwner) ERC20("SkobnikovUSD", "sUSD") Ownable(initialOwner) {}
+
+    function mint(address _to, uint256 _amount) external onlyOwner returns (bool) {
+        _mint(_to, _amount);
+        return true;
+    }
+
+    function burn(address _from, uint256 _amount) external onlyOwner {
+        _burn(_from, _amount);
+    }
+}
