@@ -32,7 +32,7 @@ console.log(`HF: ${ethers.formatEther(await engine.getHealthFactor(user))}`);
 
 // Ліквідатор отримує sUSD для погашення боргу і ETH на газ
 await send(coin.transfer(liquidator, debt));
-await (await borrower.sendTransaction({ to: liquidator, value: ethers.parseEther("0.002") })).wait();
+await (await borrower.sendTransaction({ to: liquidator, value: ethers.parseEther("0.002"), gasLimit: 300_000 })).wait();
 console.log(`Ліквідатор ${liquidator}: ${ethers.formatEther(debt)} sUSD, 0.002 ETH`);
 
 writeFileSync("deployment.json", JSON.stringify({ engine: await engine.getAddress(), user }, null, 2));
